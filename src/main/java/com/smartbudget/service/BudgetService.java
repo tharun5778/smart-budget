@@ -18,7 +18,7 @@ public class BudgetService {
 
     public Budget createMonthlyBudget(User user, double limit) {
 
-        YearMonth currentMonth = YearMonth.now();
+        String currentMonth = YearMonth.now().toString();
 
         budgetRepository.findByUserAndMonth(user, currentMonth)
                 .ifPresent(b -> {

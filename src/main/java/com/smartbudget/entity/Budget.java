@@ -16,7 +16,8 @@ public class Budget {
 
     private double usedAmount;
 
-    private YearMonth month;
+    @Column(name = "budget_month", length = 7)
+    private String month;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -48,11 +49,11 @@ public class Budget {
         this.usedAmount = usedAmount;
     }
 
-    public YearMonth getMonth() {
+    public String getMonth() {
         return month;
     }
 
-    public void setMonth(YearMonth month) {
+    public void setMonth(String month) {
         this.month = month;
     }
 

@@ -22,7 +22,7 @@ public class ExpenseService {
 
     public void addExpense(User user, double amount, Category category, String description) {
 
-        YearMonth currentMonth = YearMonth.now();
+        String currentMonth = YearMonth.now().toString();
 
         Budget budget = budgetRepository.findByUserAndMonth(user, currentMonth)
                 .orElseThrow(() -> new RuntimeException("No budget set for this month"));
