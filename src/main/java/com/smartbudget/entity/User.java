@@ -1,6 +1,7 @@
 package com.smartbudget.entity;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -18,6 +19,14 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @OneToMany(mappedBy = "user")
+    private List<Expense> expenses;
+
+    @OneToMany(mappedBy = "user")
+    private List<Budget> budgets;
+
+    // getters & setters
 
     public Long getId() {
         return id;
@@ -50,5 +59,4 @@ public class User {
     public void setRole(Role role) {
         this.role = role;
     }
-// getters & setters
 }
