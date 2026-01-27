@@ -3,6 +3,7 @@ package com.smartbudget.service;
 import com.smartbudget.dto.RegisterRequest;
 import com.smartbudget.entity.Role;
 import com.smartbudget.entity.User;
+import com.smartbudget.exception.ResourceNotFoundException;
 import com.smartbudget.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,6 @@ public class UserService {
 
     public User getCurrentUser(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 }

@@ -2,6 +2,7 @@ package com.smartbudget.service;
 
 import com.smartbudget.entity.Budget;
 import com.smartbudget.entity.User;
+import com.smartbudget.exception.BusinessException;
 import com.smartbudget.repository.BudgetRepository;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ public class BudgetService {
 
         budgetRepository.findByUserAndMonth(user, currentMonth)
                 .ifPresent(b -> {
-                    throw new RuntimeException("Budget already exists for this month");
+                    throw new BusinessException("Budget already exists for this month");
                 });
 
         Budget budget = new Budget();

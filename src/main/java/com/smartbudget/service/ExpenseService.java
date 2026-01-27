@@ -1,6 +1,7 @@
 package com.smartbudget.service;
 
 import com.smartbudget.entity.*;
+import com.smartbudget.exception.BusinessException;
 import com.smartbudget.repository.BudgetRepository;
 import com.smartbudget.repository.ExpenseRepository;
 import org.springframework.stereotype.Service;
@@ -25,10 +26,10 @@ public class ExpenseService {
         String currentMonth = YearMonth.now().toString();
 
         Budget budget = budgetRepository.findByUserAndMonth(user, currentMonth)
-                .orElseThrow(() -> new RuntimeException("No budget set for this month"));
+                .orElseThrow(() -> new BusinessException("No budget set for this month"));
 
         if (budget.getUsedAmount() + amount > budget.getTotalLimit()) {
-            throw new RuntimeException("Budget limit exceeded");
+            throw new BusinessException("Budget limit exceeded");
         }
 
         Expense expense = new Expense();
