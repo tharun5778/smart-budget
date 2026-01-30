@@ -1,12 +1,17 @@
 package com.smartbudget.controller;
 
 import com.smartbudget.dto.CreateExpenseRequest;
+import com.smartbudget.dto.ExpenseResponse;
+import com.smartbudget.dto.MonthlySummaryResponse;
 import com.smartbudget.entity.User;
 import com.smartbudget.security.SecurityUtil;
 import com.smartbudget.service.ExpenseService;
 import com.smartbudget.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import java.time.YearMonth;
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/expenses")
@@ -34,5 +39,35 @@ public class ExpenseController {
                 request.getCategory(),
                 request.getDescription()
         );
+    }
+
+    @GetMapping
+    public List<ExpenseResponse> getExpenses(
+            @RequestParam(required = false) String month) {
+
+        String username = SecurityUtil.getCurrentUsername();
+        User user = userService.getCurrentUser(username);
+
+        YearMonth yearMonth =
+                (month == null)
+                        ? YearMonth.now()
+                        : YearMonth.parse(month);
+
+        return expenseService.getMonthlyExpenses(user, yearMonth);
+    }
+
+    @GetMapping("/summary")
+    public MonthlySummaryResponse getMonthlySummary(
+            @RequestParam(required = false) String month) {
+
+        String username = SecurityUtil.getCurrentUsername();
+        User user = userService.getCurrentUser(username);
+
+        YearMonth yearMonth =
+                (month == null)
+                        ? YearMonth.now()
+                        : YearMonth.parse(month);
+
+        return expenseService.getMonthlySummary(user, yearMonth);
     }
 }
