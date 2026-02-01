@@ -5,6 +5,7 @@ import com.smartbudget.dto.MonthlySummaryResponse;
 import com.smartbudget.entity.*;
 import com.smartbudget.exception.BusinessException;
 import com.smartbudget.repository.BudgetRepository;
+import com.smartbudget.repository.CategoryBudgetRepository;
 import com.smartbudget.repository.ExpenseRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
@@ -22,11 +23,14 @@ public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
     private final BudgetRepository budgetRepository;
+    private final CategoryBudgetRepository categoryBudgetRepository;
 
     public ExpenseService(ExpenseRepository expenseRepository,
-                          BudgetRepository budgetRepository) {
+                          BudgetRepository budgetRepository,
+                          CategoryBudgetRepository categoryBudgetRepository) {
         this.expenseRepository = expenseRepository;
         this.budgetRepository = budgetRepository;
+        this.categoryBudgetRepository= categoryBudgetRepository;
     }
 
     @Transactional
@@ -41,6 +45,17 @@ public class ExpenseService {
             throw new BusinessException("Budget limit exceeded");
         }
 
+        CategoryBudget categoryBudget =
+                categoryBudgetRepository
+                        .findByUserAndCategoryAndMonth(user, category, YearMonth.now())
+                        .orElseThrow(() ->
+                                new BusinessException(
+                                        "No category budget set for " + category));
+
+        if (categoryBudget.getUsedAmount() + amount > categoryBudget.getLimitAmount()){
+            throw new BusinessException(category + " category limit exceeded");
+        }
+
         Expense expense = new Expense();
         expense.setUser(user);
         expense.setAmount(amount);
@@ -50,8 +65,11 @@ public class ExpenseService {
 
         budget.setUsedAmount(budget.getUsedAmount() + amount);
 
+        categoryBudget.setUsedAmount(categoryBudget.getUsedAmount() + amount);
+
         expenseRepository.save(expense);
         budgetRepository.save(budget);
+        categoryBudgetRepository.save(categoryBudget);
     }
 
     @Transactional(readOnly = true)
