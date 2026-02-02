@@ -3,12 +3,14 @@ package com.smartbudget.service;
 import com.smartbudget.dto.ExpenseResponse;
 import com.smartbudget.dto.MonthlySummaryResponse;
 import com.smartbudget.entity.*;
+import com.smartbudget.event.ExpenseAddedEvent;
 import com.smartbudget.exception.BusinessException;
 import com.smartbudget.repository.BudgetRepository;
 import com.smartbudget.repository.CategoryBudgetRepository;
 import com.smartbudget.repository.ExpenseRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,13 +26,17 @@ public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final BudgetRepository budgetRepository;
     private final CategoryBudgetRepository categoryBudgetRepository;
+    private final ApplicationEventPublisher eventPublisher;
+
 
     public ExpenseService(ExpenseRepository expenseRepository,
                           BudgetRepository budgetRepository,
-                          CategoryBudgetRepository categoryBudgetRepository) {
+                          CategoryBudgetRepository categoryBudgetRepository,
+                          ApplicationEventPublisher eventPublisher) {
         this.expenseRepository = expenseRepository;
         this.budgetRepository = budgetRepository;
         this.categoryBudgetRepository= categoryBudgetRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -70,6 +76,11 @@ public class ExpenseService {
         expenseRepository.save(expense);
         budgetRepository.save(budget);
         categoryBudgetRepository.save(categoryBudget);
+
+        // publish async alert event
+        eventPublisher.publishEvent(
+                new ExpenseAddedEvent(categoryBudget)
+        );
     }
 
     @Transactional(readOnly = true)
